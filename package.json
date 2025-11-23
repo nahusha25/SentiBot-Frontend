@@ -24,7 +24,7 @@
     "typescript": "^5.4.2",
     "vite": "^5.2.0"
   },
-  "engines": {
-    "node": "18.x"
-  }
+"engines": {
+  "node": "22.x"
+}
 }
