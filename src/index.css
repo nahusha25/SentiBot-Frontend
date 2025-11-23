@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* include your previous CSS if still needed */
+@import "./custom.css";

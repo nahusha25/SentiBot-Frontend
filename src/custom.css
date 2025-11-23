@@ -1,0 +1,188 @@
+/* index.css — Restored & safe version */
+
+/* ---------- THEME ---------- */
+:root{
+  --purple: #7b2cff;
+  --bg: #faf5ff;
+  --card: #ffffff;
+  --muted: #6b7280;
+  --header-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+  --text: #111827;
+}
+
+/* basic reset */
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{
+  margin:0;
+  font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* ---------- LAYOUT ---------- */
+/* top-level app container */
+.app-wrap{
+  display:flex;
+  min-height:100vh;
+  height:100vh;               /* ensure full height so chat calc works */
+  overflow: hidden;          /* keep page stable; chat area will scroll */
+}
+
+/* sidebar - left column */
+.sidebar{
+  width:260px;
+  background:var(--sidebar-bg);
+  padding:20px;
+  border-right:1px solid rgba(0,0,0,0.06);
+  box-shadow:0 8px 20px rgba(99,102,241,0.03);
+  overflow-y:auto;           /* sidebar can scroll if content is long */
+  flex-shrink:0;
+}
+
+/* main column */
+.content{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-height:0;              /* important so child can scroll */
+}
+
+/* header — fixed height */
+.app-header{
+  background:var(--header-bg);
+  border-bottom:1px solid rgba(0,0,0,0.06);
+  padding:18px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-shrink:0;
+}
+
+/* ---------- CHAT AREA (ONLY THIS SCROLLS) ---------- */
+/* chat-area fills remaining space and scrolls internally */
+.chat-area{
+  padding:28px;
+  background: linear-gradient(90deg, rgba(250,245,255,0.55), rgba(250,245,255,0.55));
+  overflow-y:auto;               /* only this scrolls */
+  flex:1 1 auto;                 /* allow it to grow/shrink within column */
+}
+
+/* message row + bubble */
+.msg-row{display:flex;margin-bottom:18px}
+.msg-bubble{
+  max-width:70%;
+  padding:18px;
+  border-radius:12px;
+  background:var(--card);
+  border:1px solid rgba(0,0,0,0.06);
+  white-space:pre-line;
+  font-size:15px;
+  position:relative;            /* ensures links inside are clickable */
+  z-index:2;
+  box-shadow:0 6px 12px rgba(0,0,0,0.03);
+}
+
+/* user message (right) */
+.msg-user{
+  margin-left:auto;
+  background:var(--purple);
+  color:#fff;
+  border-radius:14px;
+}
+
+/* bot message small adjustments */
+.msg-bot{
+  background:var(--card);
+}
+
+/* timestamp small */
+.msg-time{ font-size:12px; opacity:0.6; margin-top:8px }
+
+/* ---------- INPUT BAR (fixed at bottom of content) ---------- */
+.input-bar{
+  padding:16px;
+  border-top:1px solid rgba(0,0,0,0.06);
+  background:var(--card);
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-shrink:0;
+}
+
+/* input / send button */
+.input-bar input{
+  flex:1;
+  padding:14px;
+  border-radius:40px;
+  border:1px solid #e3e3e3;
+  background:#fff;
+}
+.send-btn{
+  padding:12px 18px;
+  border-radius:40px;
+  background:var(--purple);
+  color:#fff;
+  border:none;
+  font-weight:600;
+}
+
+/* ---------- BUTTONS (sidebar) ---------- */
+.btn{
+  display:block;
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:12px;
+  border:0;
+  cursor:pointer;
+  font-weight:600;
+  font-size:15px;
+  text-align:center;
+}
+.btn.purple{ background:var(--purple); color:#fff; }
+.btn.red{ background:#dc2626; color:#fff; }
+.btn.gray{ background:#f3f4f6; color:var(--text); border:1px solid #e5e7eb; }
+.btn.dark{ background:#111827; color:#fff; }
+
+/* ---------- SMALL CARDS ---------- */
+.summary-card{
+  background:#f8fafc;
+  padding:14px;
+  border-radius:10px;
+  margin-bottom:16px;
+  border:1px solid rgba(0,0,0,0.04);
+}
+
+/* ---------- DARK MODE (applies when app-wrap has .dark class) ---------- */
+.app-wrap.dark{
+  --bg:#0b0b0b;
+  --card:#0f1720;
+  --sidebar-bg:#0b0b0b;
+  --header-bg:#0b0b0b;
+  --text:#e6eef8;
+  background:#050508;
+}
+
+/* dark variant specifics */
+.app-wrap.dark .sidebar{ background:var(--sidebar-bg); color:var(--text) }
+.app-wrap.dark .app-header{ background:var(--header-bg); border-bottom-color: rgba(255,255,255,0.03) }
+.app-wrap.dark .chat-area{ background: linear-gradient(90deg, rgba(10,10,12,0.6), rgba(10,10,12,0.6)) }
+.app-wrap.dark .msg-bubble{ background: #0f1720; color:var(--text); border-color: rgba(255,255,255,0.03) }
+.app-wrap.dark .msg-user{ background:#7b2cff; color:#fff }
+.app-wrap.dark .input-bar{ background: #0b0b0b; border-top-color: rgba(255,255,255,0.03) }
+.app-wrap.dark input{ background:#111827; color:var(--text); border-color:#222 }
+
+/* ---------- UTILITY / RESPONSIVE ---------- */
+@media (max-width:900px){
+  .sidebar{ display:none }
+  .app-wrap{ overflow:auto } /* allow page to scroll on small screens */
+  .chat-area{ padding:18px }
+}
+
+/* make sure links inside bubbles are clickable and visible */
+.msg-bubble a{ color: #2563eb; text-decoration:underline; z-index:20; position:relative }
+

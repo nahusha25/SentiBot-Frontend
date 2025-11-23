@@ -1,18 +1,21 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
+import LoginPage from "./LoginPage";
+import RegisterPage from "./RegisterPage";
+import DashboardPage from "./DashboardPage";
 import ChatPage from "./ChatPage";
+import JobDetailsPage from "./JobDetailsPage";
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        {/* Directly open Chat Page */}
-        <Route path="/" element={<ChatPage />} />
-
-        {/* Optional: also allow /chat */}
-        <Route path="/chat" element={<ChatPage />} />
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/dashboard" element={<DashboardPage />} />
+      <Route path="/chat" element={<ChatPage />} />
+      <Route path="/jobs" element={<JobDetailsPage />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
   );
 };
 
