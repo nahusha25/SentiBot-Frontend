@@ -39,7 +39,7 @@ const JobDetailsPage: React.FC = () => {
     if (requestedPage === 1) setJobs([]);
 
     try {
-      const res = await axios.post("http://localhost:3000/api/rapid-jobs", {
+      const res = await axios.post("https://sentibot-backend.onrender.com/api/rapid-jobs", {
         company: company.trim(),
         page: requestedPage,
       });

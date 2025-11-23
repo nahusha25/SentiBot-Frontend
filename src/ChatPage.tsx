@@ -221,7 +221,7 @@ const ChatPage: React.FC = () => {
     setTyping(true);
 
     try {
-      const res = await fetch("http://localhost:3000/sentiment", {
+      const res = await fetch("https://sentibot-backend.onrender.com/sentiment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: trimmed }),
