@@ -1,40 +1,56 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const RegisterPage: React.FC = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [qualification, setQualification] = useState("");
   const [password, setPassword] = useState("");
+
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [city, setCity] = useState("");
+  const [skills, setSkills] = useState("");
+  const [experience, setExperience] = useState("");
+  const [careerGoal, setCareerGoal] = useState("");
+  const [qualification, setQualification] = useState("");
+
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !email || !qualification || !password) {
-      setError("All fields are required!");
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !dateOfBirth ||
+      !city ||
+      !qualification
+    ) {
+      setError("All required fields must be filled!");
       return;
     }
 
-    // Read existing users
-    const stored = localStorage.getItem("users");
-    const users = stored ? JSON.parse(stored) : [];
+    try {
+      const res = await axios.post("http://localhost:3000/api/register", {
+        name,
+        email,
+        password,
+        dateOfBirth,
+        city,
+        skills,
+        experience,
+        careerGoal,
+        qualification
+      });
 
-    // Check if email exists
-    if (users.find((u: any) => u.email === email)) {
-      setError("Email already registered! Please login.");
-      return;
+      alert("Registration successful!");
+      navigate("/login");
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Registration failed");
     }
-
-    // Add new user
-    const newUser = { name, email, qualification, password };
-    users.push(newUser);
-    localStorage.setItem("users", JSON.stringify(users));
-
-    alert("Registration successful! Please login.");
-    navigate("/login");
   };
 
   return (
@@ -44,7 +60,7 @@ const RegisterPage: React.FC = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#f3e8ff",
+        background: "#f3e8ff"
       }}
     >
       <div
@@ -54,7 +70,7 @@ const RegisterPage: React.FC = () => {
           padding: "30px",
           borderRadius: "16px",
           boxShadow: "0 8px 30px rgba(0,0,0,0.1)",
-          textAlign: "center",
+          textAlign: "center"
         }}
       >
         <h2 style={{ fontSize: "26px", fontWeight: "700", marginBottom: "20px" }}>
@@ -84,25 +100,64 @@ const RegisterPage: React.FC = () => {
             style={inputStyle}
           />
 
-          <select
-            value={qualification}
-            onChange={(e) => setQualification(e.target.value)}
-            style={inputStyle}
-          >
-            <option value="">Select Qualification</option>
-            <option value="BCA">BCA</option>
-            <option value="BCom">BCom</option>
-            <option value="BBA">BBA</option>
-            <option value="MCA">MCA</option>
-            <option value="MBA">MBA</option>
-          </select>
-
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             style={inputStyle}
+          />
+
+          <input
+            type="date"
+            placeholder="Date of Birth"
+            value={dateOfBirth}
+            onChange={(e) => setDateOfBirth(e.target.value)}
+            style={inputStyle}
+          />
+
+          <input
+            type="text"
+            placeholder="City"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            style={inputStyle}
+          />
+
+          <select
+            value={qualification}
+            onChange={(e) => setQualification(e.target.value)}
+            style={inputStyle}
+          >
+            <option value="">Select Qualification</option>
+            <option value="MCA">MCA</option>
+            <option value="BCA">BCA</option>
+            <option value="MBA">MBA</option>
+            <option value="BCom">BCom</option>
+            <option value="BBA">BBA</option>
+          </select>
+
+          <input
+            type="text"
+            placeholder="Skills (React, Java, UI, etc)"
+            value={skills}
+            onChange={(e) => setSkills(e.target.value)}
+            style={inputStyle}
+          />
+
+          <input
+            type="text"
+            placeholder="Experience (1 year, Fresher, etc)"
+            value={experience}
+            onChange={(e) => setExperience(e.target.value)}
+            style={inputStyle}
+          />
+
+          <textarea
+            placeholder="Career Goal"
+            value={careerGoal}
+            onChange={(e) => setCareerGoal(e.target.value)}
+            style={{ ...inputStyle, height: "80px" }}
           />
 
           <button
@@ -115,7 +170,7 @@ const RegisterPage: React.FC = () => {
               fontSize: "16px",
               fontWeight: "600",
               border: "none",
-              cursor: "pointer",
+              cursor: "pointer"
             }}
           >
             Register
@@ -140,7 +195,7 @@ const inputStyle: React.CSSProperties = {
   padding: "12px",
   borderRadius: "10px",
   border: "1px solid #ccc",
-  fontSize: "15px",
+  fontSize: "15px"
 };
 
 export default RegisterPage;

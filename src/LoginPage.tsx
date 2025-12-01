@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -8,24 +9,30 @@ const LoginPage: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
-    const stored = localStorage.getItem("users");
-    const users = stored ? JSON.parse(stored) : [];
-
-    const found = users.find(
-      (u: any) => u.email === email && u.password === password
-    );
-
-    if (!found) {
-      setError("Invalid email or password. Please register first!");
+    if (!email || !password) {
+      setError("Please enter both email and password.");
       return;
     }
 
-    localStorage.setItem("profile", JSON.stringify(found));
-    localStorage.setItem("token", "logged_in");
-    navigate("/dashboard");
+    try {
+      const res = await axios.post("http://localhost:3000/api/login", {
+        email,
+        password
+      });
+
+      // Save login session + user profile
+      localStorage.setItem("token", "logged_in");
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      navigate("/dashboard");
+
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Invalid login details.");
+    }
   };
 
   return (
@@ -37,7 +44,7 @@ const LoginPage: React.FC = () => {
         </h2>
 
         <p className="text-sm text-center text-gray-500 mb-6">
-          Login to access your dashboard
+          Login to access your unified dashboard
         </p>
 
         {error && (
@@ -47,12 +54,13 @@ const LoginPage: React.FC = () => {
         )}
 
         <form onSubmit={handleLogin} className="grid gap-4">
+          
           <input
             type="email"
             placeholder="Email ID"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none"
           />
 
           <input
@@ -60,7 +68,7 @@ const LoginPage: React.FC = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none"
           />
 
           <button
@@ -80,6 +88,7 @@ const LoginPage: React.FC = () => {
             Register
           </span>
         </p>
+
       </div>
     </div>
   );
