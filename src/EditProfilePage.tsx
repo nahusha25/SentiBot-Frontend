@@ -1,70 +1,201 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const EditProfilePage: React.FC = () => {
+const EditProfile: React.FC = () => {
+  const navigate = useNavigate();
+
+  // Load saved user
   const userRaw = localStorage.getItem("user");
-  const user = userRaw ? JSON.parse(userRaw) : null;
+  const user = userRaw ? JSON.parse(userRaw) : {};
 
-  const [form, setForm] = useState({
-    name: user?.name || "",
-    city: user?.city || "",
-    skills: user?.skills || "",
-    experience: user?.experience || "",
-    career_goal: user?.career_goal || "",
-    qualification: user?.qualification || "",
-    date_of_birth: user?.date_of_birth || ""
-  });
+  // Form state
+  const [name] = useState(user.name || "");
+  const [city, setCity] = useState(user.city || "");
+  const [qualification, setQualification] = useState(user.qualification || "");
+  const [skills, setSkills] = useState(user.skills || "");
+  const [experience, setExperience] = useState(user.experience || "");
+  const [careerGoal, setCareerGoal] = useState(user.career_goal || "");
+  const [dob, setDob] = useState(user.date_of_birth || "");
 
-  const [msg, setMsg] = useState("");
+  const [message, setMessage] = useState("");
 
-  const updateProfile = async () => {
-    const res = await fetch(`http://localhost:3000/api/update-profile/${user.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    });
+  const saveProfile = async () => {
+    if (!user.id) {
+      setMessage("User ID missing — login again.");
+      return;
+    }
 
-    const data = await res.json();
-    if (data.success) {
-      localStorage.setItem("user", JSON.stringify({ ...user, ...form }));
-      setMsg("Profile updated successfully!");
+    try {
+      const res = await axios.put("http://localhost:5000/api/update-profile", {
+        id: user.id,
+        city,
+        skills,
+        experience,
+        career_goal: careerGoal,
+        date_of_birth: dob,
+        qualification,
+      });
+
+      // Update localStorage with new values
+      const updated = {
+        ...user,
+        city,
+        skills,
+        experience,
+        career_goal: careerGoal,
+        date_of_birth: dob,
+        qualification,
+      };
+
+      localStorage.setItem("user", JSON.stringify(updated));
+
+      setMessage("Profile updated successfully!");
+      navigate("/dashboard");
+    } catch (err) {
+      console.log(err);
+      setMessage("Server error while updating.");
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow rounded-xl">
-      <h2 className="text-2xl font-bold mb-6 text-purple-600">Edit Profile</h2>
+    <div style={{ padding: 40, maxWidth: 600, margin: "auto" }}>
+      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 20 }}>
+        Edit Profile
+      </h1>
 
-      {msg && <p className="text-green-600 mb-3">{msg}</p>}
+      {message && (
+        <p
+          style={{
+            marginBottom: 20,
+            color: message.includes("success") ? "green" : "red",
+            fontWeight: 600,
+          }}
+        >
+          {message}
+        </p>
+      )}
 
-      <div className="space-y-3">
-        <input className="input" value={form.name} placeholder="Name"
-          onChange={(e) => setForm({ ...form, name: e.target.value })} />
+      {/* Name (readonly) */}
+      <input
+        value={name}
+        readOnly
+        style={{
+          width: "100%",
+          padding: 12,
+          marginBottom: 16,
+          borderRadius: 8,
+          border: "1px solid #ddd",
+        }}
+      />
 
-        <input className="input" value={form.city} placeholder="City"
-          onChange={(e) => setForm({ ...form, city: e.target.value })} />
+      {/* City */}
+      <input
+        value={city}
+        onChange={(e) => setCity(e.target.value)}
+        placeholder="City"
+        style={{
+          width: "48%",
+          padding: 12,
+          marginBottom: 16,
+          borderRadius: 8,
+          border: "1px solid #ddd",
+          marginRight: "4%",
+        }}
+      />
 
-        <input className="input" value={form.qualification} placeholder="Qualification"
-          onChange={(e) => setForm({ ...form, qualification: e.target.value })} />
+      {/* Qualification */}
+      <input
+        value={qualification}
+        onChange={(e) => setQualification(e.target.value)}
+        placeholder="Qualification"
+        style={{
+          width: "48%",
+          padding: 12,
+          marginBottom: 16,
+          borderRadius: 8,
+          border: "1px solid #ddd",
+        }}
+      />
 
-        <input className="input" value={form.skills} placeholder="Skills"
-          onChange={(e) => setForm({ ...form, skills: e.target.value })} />
+      {/* Skills */}
+      <input
+        value={skills}
+        onChange={(e) => setSkills(e.target.value)}
+        placeholder="Skills"
+        style={{
+          width: "48%",
+          padding: 12,
+          marginBottom: 16,
+          borderRadius: 8,
+          border: "1px solid #ddd",
+          marginRight: "4%",
+        }}
+      />
 
-        <input className="input" value={form.experience} placeholder="Experience"
-          onChange={(e) => setForm({ ...form, experience: e.target.value })} />
+      {/* Experience */}
+      <input
+        value={experience}
+        onChange={(e) => setExperience(e.target.value)}
+        placeholder="Experience"
+        style={{
+          width: "48%",
+          padding: 12,
+          marginBottom: 16,
+          borderRadius: 8,
+          border: "1px solid #ddd",
+        }}
+      />
 
-        <textarea className="input" value={form.career_goal} placeholder="Career Goal"
-          onChange={(e) => setForm({ ...form, career_goal: e.target.value })}></textarea>
+      {/* DOB */}
+      <input
+        type="date"
+        value={dob}
+        onChange={(e) => setDob(e.target.value)}
+        style={{
+          width: "48%",
+          padding: 12,
+          marginBottom: 16,
+          borderRadius: 8,
+          border: "1px solid #ddd",
+          marginRight: "4%",
+        }}
+      />
 
-        <input className="input" type="date" value={form.date_of_birth}
-          onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })} />
+      {/* Career goal */}
+      <textarea
+        value={careerGoal}
+        onChange={(e) => setCareerGoal(e.target.value)}
+        placeholder="Career Goal"
+        style={{
+          width: "100%",
+          padding: 12,
+          height: 120,
+          marginBottom: 16,
+          borderRadius: 8,
+          border: "1px solid #ddd",
+        }}
+      ></textarea>
 
-        <button onClick={updateProfile}
-          className="mt-4 w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700">
-          Save Changes
-        </button>
-      </div>
+      {/* Save button */}
+      <button
+        onClick={saveProfile}
+        style={{
+          width: "100%",
+          padding: 14,
+          fontSize: 18,
+          fontWeight: 600,
+          background: "#7a08f0",
+          color: "white",
+          borderRadius: 10,
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        Save Changes
+      </button>
     </div>
   );
 };
 
-export default EditProfilePage;
+export default EditProfile;

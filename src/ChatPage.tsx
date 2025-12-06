@@ -1,120 +1,168 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 
 const ChatPage: React.FC = () => {
-  const [messages, setMessages] = useState<
-    { sender: "user" | "bot"; text: string }[]
-  >([
+  const userRaw = localStorage.getItem("user");
+  const user = userRaw ? JSON.parse(userRaw) : null;
+  const name = user?.name || "Friend";
+
+  const [messages, setMessages] = useState([
     {
       sender: "bot",
-      text: "Hello! I'm SentiBot 😊 How can I support you today?",
+      text: `${name}, 💬 How are you feeling today?`,
     },
   ]);
 
   const [input, setInput] = useState("");
-  const bottomRef = useRef<HTMLDivElement | null>(null);
 
-  const userRaw = localStorage.getItem("user");
-  const user = userRaw ? JSON.parse(userRaw) : null;
+  // -------------------------------------------------------
+  // EMOTIONAL AI ENGINE — SAD + HAPPY + DEFAULT RESPONSE
+  // -------------------------------------------------------
+  function generateEmotionalResponse(message: string) {
+    const msg = message.toLowerCase();
 
-  const scrollToBottom = () =>
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const sadWords = [
+      "sad", "depressed", "lonely", "stress", "upset", "crying",
+      "hurt", "bad", "unhappy", "worried", "anxious"
+    ];
 
-  useEffect(scrollToBottom, [messages]);
+    const happyWords = [
+      "happy", "good", "great", "awesome",
+      "excited", "joy", "fantastic", "nice"
+    ];
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
+    // SAD RESPONSE (ONE SINGLE MESSAGE WITH HTML)
+    if (sadWords.some((w) => msg.includes(w))) {
+      return `
+      ${name}, I'm really sorry you're feeling this way 💙  
+      You're not alone — I'm here for you. <br><br>
 
-    const text = input.trim();
-    setInput("");
+      ✨ <b>Motivational Quote</b>: “Every storm runs out of rain.” — Maya Angelou <br><br>
 
-    // Add user bubble
-    setMessages((prev) => [...prev, { sender: "user", text }]);
+      📍 <b>Nearby Psychiatrists (Bangalore):</b><br>
+      1. NIMHANS Hospital — <a href="tel:08026995000">080-26995000</a><br>
+      2. Cadabams Hospital — <a href="tel:+919741476476">+91 97414 76476</a><br><br>
 
-    try {
-      const res = await fetch("http://localhost:3000/sentiment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, user }),
-      });
+      🔗 <b>Find Psychiatrists Near You (Google Maps):</b><br>
+      <a href="https://www.google.com/maps/search/psychiatrist+near+me/" 
+         target="_blank" 
+         style="color:#4f46e5; text-decoration: underline;">
+         Click here to open Google Maps
+      </a><br><br>
 
-      const data = await res.json();
+      ☎ <b>24/7 Mental Health Helpline (India):</b> 
+      <a href="tel:18005990019">1800-599-0019</a><br><br>
 
-      setMessages((prev) => [
-        ...prev,
-        { sender: "bot", text: data.reply || "I'm here to help!" },
-      ]);
-    } catch (err) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          sender: "bot",
-          text: "⚠️ Unable to reach server. Please try again.",
-        },
-      ]);
+      Would you like to talk about what made you feel this way?
+      `;
     }
+
+    // HAPPY RESPONSE
+    if (happyWords.some((w) => msg.includes(w))) {
+      return `
+      That's amazing, ${name}! 😄<br>
+      I'm really happy for you!<br><br>
+
+      🎉 Keep spreading positivity — the world needs more of it!<br><br>
+
+      ✨ <b>Motivational Boost</b>: “Success is the sum of small efforts repeated daily.”<br><br>
+
+      Tell me, what made your day so good?
+      `;
+    }
+
+    // DEFAULT / UNKNOWN EMOTION RESPONSE
+    return `
+      I hear you, ${name}. Tell me more! <br>
+      I'm here to listen and support you 😊
+    `;
+  }
+
+  // -------------------------------------------------------
+  // SEND MESSAGE
+  // -------------------------------------------------------
+  const sendMessage = (text: string) => {
+    if (!text.trim()) return;
+
+    // Show user's message
+    setMessages((prev) => [...prev, { sender: "you", text }]);
+
+    // Bot reply
+    const reply = generateEmotionalResponse(text);
+
+    setTimeout(() => {
+      setMessages((prev) => [...prev, { sender: "bot", text: reply }]);
+    }, 700);
+
+    setInput("");
   };
 
-  const handleKey = (e: any) => {
-    if (e.key === "Enter") sendMessage();
-  };
+  // SAMPLE BUTTONS
+  const sampleSad = () => sendMessage("I am feeling sad and lonely.");
+  const sampleHappy = () => sendMessage("I am feeling very happy today!");
 
   return (
-    <div className="h-screen flex flex-col bg-[#F4EEFF]">
+    <div className="flex h-screen">
+      {/* LEFT SIDEBAR */}
+      <div className="w-64 bg-gray-100 p-5 border-r">
+        <h2 className="text-xl font-bold mb-5">Mood summary</h2>
 
-      {/* Header */}
-      <header className="w-full bg-white shadow-md py-4 px-6 flex justify-between items-center border-b">
-        <h1 className="text-2xl font-bold text-purple-700">SentiBot Chat</h1>
+        <p><strong>User:</strong> {user?.name}</p>
+        <p><strong>City:</strong> {user?.city || "Not Provided"}</p>
 
-        <button
-          onClick={() => {
-            localStorage.removeItem("user");
-            window.location.href = "/login";
-          }}
-          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-        >
-          Logout
-        </button>
-      </header>
+        <div className="mt-5 space-y-3">
+          <button onClick={sampleSad} className="w-full py-2 bg-red-200 rounded">
+            🥺 Sample Sad
+          </button>
 
-      {/* Chat Body */}
-      <div className="flex-1 overflow-y-auto p-8 space-y-6">
-
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`flex w-full ${
-              msg.sender === "user" ? "justify-end" : "justify-start"
-            }`}
-          >
-            <div
-              className={`max-w-xl px-4 py-3 rounded-2xl shadow-md text-base leading-relaxed ${
-                msg.sender === "user"
-                  ? "bg-purple-600 text-white rounded-br-none"
-                  : "bg-white text-gray-800 border rounded-bl-none"
-              }`}
-            >
-              {msg.text}
-            </div>
-          </div>
-        ))}
-
-        <div ref={bottomRef}></div>
-      </div>
-
-      {/* Input Bar */}
-      <div className="p-4 bg-white border-t">
-        <div className="flex gap-3">
-          <input
-            value={input}
-            onKeyDown={handleKey}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-1 px-4 py-3 border border-purple-300 rounded-xl focus:ring-2 focus:ring-purple-400 outline-none"
-          />
+          <button onClick={sampleHappy} className="w-full py-2 bg-green-200 rounded">
+            😊 Sample Happy
+          </button>
 
           <button
-            onClick={sendMessage}
-            className="px-6 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700"
+            onClick={() => setMessages([])}
+            className="w-full py-2 bg-red-300 rounded"
+          >
+            🗑 Clear Chat
+          </button>
+
+          <button
+            onClick={() => (window.location.href = "/dashboard")}
+            className="w-full py-2 bg-black text-white rounded"
+          >
+            ← Back to Dashboard
+          </button>
+        </div>
+      </div>
+
+      {/* CHAT AREA */}
+      <div className="flex-1 flex flex-col">
+        <div className="p-5 flex-1 overflow-y-auto">
+          {messages.map((msg, idx) => (
+            <div
+              key={idx}
+              className={`my-2 p-3 rounded-lg w-fit max-w-xl ${
+                msg.sender === "you"
+                  ? "ml-auto bg-purple-400 text-white"
+                  : "bg-gray-200"
+              }`}
+            >
+              {/* RENDER HTML SAFELY */}
+              <div dangerouslySetInnerHTML={{ __html: msg.text }} />
+            </div>
+          ))}
+        </div>
+
+        {/* INPUT BOX */}
+        <div className="p-4 border-t flex">
+          <input
+            className="flex-1 border px-4 py-2 rounded-l-full"
+            placeholder="Type how you're feeling..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
+          <button
+            onClick={() => sendMessage(input)}
+            className="bg-purple-500 text-white px-6 rounded-r-full"
           >
             Send
           </button>

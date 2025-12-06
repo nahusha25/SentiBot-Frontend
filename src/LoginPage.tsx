@@ -19,18 +19,20 @@ const LoginPage: React.FC = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:3000/api/login", {
+      // FIXED ROUTE + FIXED ERROR KEY
+      const res = await axios.post("http://localhost:5000/api/login", {
         email,
         password
       });
 
-      // Save login session + user profile
+      // Save session
       localStorage.setItem("token", "logged_in");
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       navigate("/dashboard");
 
     } catch (err: any) {
+      // FIXED ERROR KEY -> backend returns { error: "Invalid login details" }
       setError(err.response?.data?.error || "Invalid login details.");
     }
   };

@@ -4,20 +4,19 @@ import { useNavigate } from "react-router-dom";
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
 
-  // Read MySQL user profile from localStorage
-  const userRaw = localStorage.getItem("user");
-  const user = userRaw
-    ? JSON.parse(userRaw)
-    : {
-        name: "User",
-        email: "",
-        city: "",
-        skills: "",
-        experience: "",
-        career_goal: "",
-        date_of_birth: "",
-        qualification: ""
-      };
+  // SAFELY read user from localStorage
+  let user: any = null;
+  try {
+    user = JSON.parse(localStorage.getItem("user") || "{}");
+  } catch {
+    user = {};
+  }
+
+  // If no user → redirect to login
+  if (!user || !user.name) {
+    navigate("/login");
+    return null;
+  }
 
   // Logout
   const logout = () => {
@@ -69,7 +68,7 @@ const DashboardPage: React.FC = () => {
           <p className="mt-3 text-gray-700 text-lg font-medium">Your Profile</p>
 
           <div className="mt-4 space-y-2 text-gray-600">
-            <p><strong>Email:</strong> {user.email}</p>
+            <p><strong>Email:</strong> {user.email || "Not Provided"}</p>
             <p><strong>City:</strong> {user.city || "Not Provided"}</p>
             <p><strong>Date of Birth:</strong> {user.date_of_birth || "Not Provided"}</p>
             <p><strong>Qualification:</strong> {user.qualification || "Not Provided"}</p>
@@ -78,7 +77,7 @@ const DashboardPage: React.FC = () => {
             <p><strong>Career Goal:</strong> {user.career_goal || "Not Provided"}</p>
           </div>
 
-          {/* ⭐ Edit Profile Button */}
+          {/* Edit Profile */}
           <button
             onClick={() => navigate("/edit-profile")}
             className="mt-5 px-5 py-2 bg-blue-600 text-white font-medium rounded-lg shadow hover:bg-blue-700 transition"

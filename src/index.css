@@ -2,5 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
-/* include your previous CSS if still needed */
-@import "./custom.css";
+/* custom */
+:root {
+  --bg: #faf5ff;
+  --panel: #ffffff;
+  --muted: #6b7280;
+}
+
+.dark {
+  --bg: #121018;
+  --panel: #0f1724;
+  --muted: #a5b4fc;
+}
+
+body {
+  background: var(--bg);
+}
+
+/* bubble corners */
+.bubble-user { border-bottom-right-radius: 8px; border-bottom-left-radius: 20px; border-top-left-radius: 20px; border-top-right-radius: 20px; }
+.bubble-bot  { border-bottom-left-radius: 8px; border-bottom-right-radius: 20px; border-top-left-radius: 20px; border-top-right-radius: 20px; }
+
+/* avatar placeholder */
+.avatar-box { width: 44px; height: 44px; display:flex; align-items:center; justify-content:center; border-radius: 8px; background: linear-gradient(135deg,#f3e8ff, #e9d5ff); }
+.dark .avatar-box { background: linear-gradient(135deg,#1f2937,#111827); }
+
+/* typing dots */
+.typing-dot { width:8px; height:8px; border-radius:9999px; background: #9ca3af; display:inline-block; margin-right:6px; animation: typingBounce 0.7s infinite; }
+.typing-dot:nth-child(2) { animation-delay:0.12s }
+.typing-dot:nth-child(3) { animation-delay:0.24s }
+/* Light mode */
+body {
+  background-color: #f8f6ff;
+}
+
+/* Dark mode */
+.dark body {
+  background-color: #0f0f10;
+}
+
+.dark .chat-container {
+  background-color: #1a1a1d;
+  color: white;
+}
+
+.dark .sidebar {
+  background-color: #151518;
+}

@@ -1,36 +1,77 @@
-import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import LoginPage from "./LoginPage";
 import RegisterPage from "./RegisterPage";
 import DashboardPage from "./DashboardPage";
-import ChatPage from "./ChatPage";
-import JobDetailsPage from "./JobDetailsPage";
+import ChatPage from "./chatpage";
 import EditProfilePage from "./EditProfilePage";
+import JobDetailsPage from "./JobDetailsPage";
 
-const Protected = ({ children }: { children: JSX.Element }) => {
-  const user = localStorage.getItem("user");
-  if (!user) return <Navigate to="/login" replace />;
+// ---------------------------
+// PROTECTED ROUTE
+// ---------------------------
+function ProtectedRoute({ children }: { children: JSX.Element }) {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    return <Navigate to="/login" />;
+  }
+
   return children;
-};
+}
 
-const App: React.FC = () => {
+// ---------------------------
+// MAIN APP
+// ---------------------------
+function App() {
   return (
-    <Routes>
+    <div className="min-h-screen bg-gray-100">
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
 
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+        {/* Public */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
-      <Route path="/dashboard" element={<Protected><DashboardPage /></Protected>} />
-      <Route path="/chat" element={<Protected><ChatPage /></Protected>} />
-      <Route path="/jobs" element={<Protected><JobDetailsPage /></Protected>} />
+        {/* Protected */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* NEW - edit profile */}
-      <Route path="/edit-profile" element={<Protected><EditProfilePage /></Protected>} />
+        <Route
+          path="/chat"
+          element={
+            <ProtectedRoute>
+              <ChatPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+        <Route
+          path="/edit-profile"
+          element={
+            <ProtectedRoute>
+              <EditProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/jobs"
+          element={
+            <ProtectedRoute>
+              <JobDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </div>
   );
-};
+}
 
 export default App;
